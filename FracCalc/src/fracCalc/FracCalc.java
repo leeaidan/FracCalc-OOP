@@ -19,10 +19,14 @@ public class FracCalc {
     public static String produceAnswer(String input)
     { 
        String[] splitBySpace = input.split(" ");
-       String operand = splitBySpace[1];
+       String operator = splitBySpace[1];
        
        Fraction operand1 = new Fraction(splitBySpace[0]);
        Fraction operand2 = new Fraction(splitBySpace[2]);
+       
+       Fraction answer = new Fraction();
+       answer = operand1.doMath(operand1, operand2, operator);
+       
        
         
         return "";
