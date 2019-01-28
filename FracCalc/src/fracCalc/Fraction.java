@@ -1,96 +1,108 @@
 package fracCalc;
-import java.util.*;
-
+/*
+ * @author: Aidan Lee
+ * @version 1.9 1/27/2019
+ * This is the object class of FracCalc, which contains constructor to 
+ * create a Fraction Object, methods to get, set, and calculate fractions
+ * and returns it to the client Code. 
+ */
+//CONSTRUCTOR: From old FracCalc, uses splitting to set instance variables for object
 public class Fraction {
-	
-	private int whole, num, denom, sign;
-	private String fracStr;
-	
+	private int whole, num, denom;	
 	public Fraction(String operand) {
-		this.fracStr = operand;
-		int[] returnIntFrac = {0,0,1};
 		if(operand.indexOf("_") != -1){
     		String[] splitByUnderscore = operand.split("_");
-    		returnIntFrac[0] = Integer.parseInt(splitByUnderscore[0]);
-    		this.whole = Integer.parseInt(splitByUnderscore[1]);
+    		whole = Integer.parseInt(splitByUnderscore[0]);
+    		operand = splitByUnderscore[1];
     	}
     	if(operand.indexOf("/") != -1){
     		String[] splitBySlash = operand.split("/");
-    		this.num = Integer.parseInt(splitBySlash[0]);
-    		this.denom = Integer.parseInt(splitBySlash[1]);
+    		num = Integer.parseInt(splitBySlash[0]);
+    		denom = Integer.parseInt(splitBySlash[1]);
     	} else {
-    		this.whole = Integer.parseInt(operand);		
-    	}	
+    		whole = Integer.parseInt(operand);		
+    		denom =1;//compensates for lack of (0,0,1} return array
+    	}
     	convertToImproperFrac();
-    	setSign();
 	}
-	
+	//ALT. CONSTRUCTOR: Initializes a Fraction Object without parameters 
 	public Fraction() {
 		this.whole = 0; 
 		this.num = 0;
 		this.denom = 1;
-		sign = 1;
 	}
-	
+	//Gets Instance Whole Number
 	public int getWhole() {
 		return this.whole;
 	}
-	
-	public int getNumerator() {
+	//Gets Instance Numerator
+	public int getNumr() {
 		return this.num;
 	}
-	
+	//Gets Instance Denominator
 	public int getDenom() {
 		return this.denom;
 	}
-	
-	public int getSign() {
-		return this.sign;
+	//Sets Parameters to instance variables of Fraction Object
+	public void setFraction(int w, int n, int d) {
+		this.whole =w;
+		this.num = n;
+		this.denom = d;
 	}
-	
-	private void setSign() {
-		if(this.whole < 0) {
-			this.sign = -1;
-		} else {
-			this.sign = 1;
-		}	
-	}
-	
+	//Converts instance variables to improper fraction
 	public void convertToImproperFrac() {
-		this.num = this.whole * absoluteValue(this.denom * this.num);
-		this.whole = 0;
+		if(whole >= 0) {
+	    	num = whole*denom+num;
+	    }else {
+	    	num = whole*denom-num;
+	    }
+	    whole = 0;//Improper Fraction has no Whole Number
 	}
-	
-	public Fraction doMath(Fraction op1, Fraction op2, String operator) {
+	//Calculates sum, product, quotient, and difference of the two Frac Objects and returns
+	//A Fraction answer
+	//Note to self: For some reason <FractionOBJ.<whole/num/denom> works without get()??
+	public Fraction doMath( Fraction op2, String operator) {
 		Fraction returnDoMath = new Fraction();
-		int denomFactor = factorOfFraction(op1.denom, op2.denom);
-		op1.num = op1.num * (denomFactor/op1.denom);
-		op2.num = op2.num * (denomFactor/op2.denom);
+		int denomFactor = factorOfFraction(denom, op2.getDenom());
 		if(operator.equals("+")) {
-			returnDoMath.num = op1.num + op2.num;
+			num = num * (denomFactor/denom) + op2.num * (denomFactor/op2.getDenom());
+			denom = denomFactor;
 		} else if(operator.equals("-")) {
-			returnDoMath.num = op1.num - op2.num;
+			num = num * (denomFactor/denom) - op2.getNumr() * (denomFactor/op2.getDenom());
+			denom = denomFactor;
 		} else if(operator.equals("*")) {
-			returnDoMath.num = op1.num * op2.num;
-			returnDoMath.denom = op2.denom * op2.denom;
+			num = num * op2.getNumr();
+			denom = denom * op2.getDenom();
 		} else if(operator.equals("/")) {
-			returnDoMath.num = op1.num * op2.denom;
-			returnDoMath.denom = op1.denom * op2.num;
-		} else {
-			throw new IllegalArgumentException("Illegal Operator. Try Again");
+			num = num * op2.getDenom();
+			denom = denom * op2.getNumr();
 		}
-		return returnDoMath;
-
+		returnDoMath.setFraction(whole, num, denom);
+		return returnDoMath;		
 	}
-	
-	public void convertToMixedNum() {
-		
+	//Reduces improper, converts to mixed number, and returns answer as String
+	public String simplifyToAString() {
+		if(num == 0)  return "" + 0;
+		int gcf = findGCF(num, denom);
+		num /= gcf;
+		denom /= gcf;
+		if(denom < 0) {
+			denom *=-1;
+			num *=-1;
+		}
+		if(absoluteValue(num ) > denom && denom !=1) {
+			int kWhole = num / denom;
+			int kNum = absoluteValue(num % denom);
+			return kWhole + "_" + kNum + "/" + denom;
+		} else if(denom ==1){
+			return "" + num;
+		} else {
+			return num + "/" + denom;
+		}
 	}
-	
 	public static int factorOfFraction(int input1, int input2) { //Multiplies denominators together
 	    return input1 * input2;
 	}
-	
 	public static int absoluteValue(int input) {//Calculate absolute value
     	if(input < 0) {
     		return input * -1;
@@ -109,7 +121,6 @@ public class Fraction {
     		}
     		return answer;
     }
-    
     public static boolean isDivisibleBy(int dividend, int divisor) {//checks if two values are divisible, required by method findGCF
 		if(divisor == 0) {
 			throw new IllegalArgumentException("Cannot divide by zero!");
@@ -119,6 +130,5 @@ public class Fraction {
 		} else {
 			return false; //is not Divisible
 		}
-	}
-
+    }
 }

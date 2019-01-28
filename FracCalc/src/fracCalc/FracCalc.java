@@ -1,5 +1,10 @@
 package fracCalc;
-
+/*
+ * @author: Aidan Lee
+ * @version 1.9 1/27/2019
+ * This is the client code that takes in input and creates instances of fraction
+ * class to calculate fractions(+,-,*,/) and returns the result.
+ */
 import java.util.Scanner;
 
 public class FracCalc {
@@ -24,12 +29,8 @@ public class FracCalc {
        Fraction operand1 = new Fraction(splitBySpace[0]);
        Fraction operand2 = new Fraction(splitBySpace[2]);
        
-       Fraction answer = new Fraction();
-       answer = operand1.doMath(operand1, operand2, operator);
-       
-       
-        
-        return "";
+       Fraction answer = operand1.doMath(operand2, operator);
+       return answer.simplifyToAString();
     }
 
 
